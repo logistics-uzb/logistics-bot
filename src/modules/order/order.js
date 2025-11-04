@@ -73,7 +73,7 @@ module.exports = {
 
 📞 Aloqa: ${phone_number}
 `;
-
+     console.log(message);
       const sentMessage = await sentOrderToChanel(message);
 
       const createOrder = order.create({
@@ -93,6 +93,8 @@ module.exports = {
         messegeId: sentMessage.message_id,
       });
 
+
+      console.log(createOrder ,'sended to channel');
       res.status(200).json({
         message: "Yuk ma'lumoti Telegramga yuborildi ✅",
         status: 200,
@@ -137,6 +139,7 @@ module.exports = {
 📞 Aloqa: ${phone_number}
 `;
       const findOrder = await order.findById(id);
+           console.log(message , 'updated message');
 
       const sentMessage = await updateOrderInChannel(
         findOrder.messegeId,
