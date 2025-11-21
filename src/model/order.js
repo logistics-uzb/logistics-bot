@@ -20,10 +20,12 @@ const Order = new Schema(
 
     paymentType: { type: String, required: true }, // cash/card
     paymentAmount: { type: Number, required: true },
-    paymentCurrency: { type: String, required: true },// usd/uzs etc
+    paymentCurrency: { type: String, required: true }, // usd/uzs etc
     messegeId: { type: Number },
-    status:{ type: String, default: "1" } 
-  
+    status: { type: String, default: "1" },
+
+    username: String,
+    user_id: String,
   },
   {
     timestamps: true, // createdAt, updatedAt

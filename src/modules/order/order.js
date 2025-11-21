@@ -11,9 +11,16 @@ const order = require("../../model/order");
 module.exports = {
   async GET(req, res, next) {
     try {
-      const findOrders = await order
-        .find({ status: "1" })
-        .sort({ createdAt: -1 });
+      const { username } = req.query;
+
+      const filter = {};
+
+      if (username) {
+        filter.username = username;
+      }
+      filter.status = "1";
+      console.log(filter, "filter");
+      const findOrders = await order.find(filter).sort({ createdAt: -1 });
 
       res.status(200).json({
         message: "Orders fetched successfully",
@@ -60,6 +67,8 @@ module.exports = {
         weight,
       } = req.body;
 
+      const findUser = await Users.findById(req.id);
+
       const message = `
 🇺🇿 ${from} => ${to} 🇺🇿
 📦 Yuk: ${title}
@@ -73,7 +82,7 @@ module.exports = {
 
 📞 Aloqa: ${phone_number}
 `;
-     console.log(message);
+      console.log(message);
       const sentMessage = await sentOrderToChanel(message);
 
       const createOrder = order.create({
@@ -91,10 +100,11 @@ module.exports = {
         vehicleType,
         weight,
         messegeId: sentMessage.message_id,
+        user_id: findUser._id,
+        username: findUser.username,
       });
 
-
-      console.log(createOrder ,'sended to channel');
+      console.log(createOrder, "sended to channel");
       res.status(200).json({
         message: "Yuk ma'lumoti Telegramga yuborildi ✅",
         status: 200,
@@ -139,7 +149,7 @@ module.exports = {
 📞 Aloqa: ${phone_number}
 `;
       const findOrder = await order.findById(id);
-           console.log(message , 'updated message');
+      console.log(message, "updated message");
 
       const sentMessage = await updateOrderInChannel(
         findOrder.messegeId,
