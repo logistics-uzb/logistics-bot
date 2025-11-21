@@ -69,7 +69,7 @@ module.exports = {
 💰 To‘lov turi: ${paymentType == "cash" ? "naqd" : "karta"}
 💸 Narxi: ${paymentAmount} ${paymentCurrency == "usd" ? "$" : "so'm"}
 🕔 Yuklash vaqti: ${pickupDate} / ${pickupTime}
-📝 Tavsif: ${description}
+📝 Tavsif: ${description && description !== "undefined" ? description : "-"}
 
 📞 Aloqa: ${phone_number}
 `;
@@ -134,7 +134,7 @@ module.exports = {
 💰 To‘lov turi: ${paymentType == "cash" ? "naqd" : "karta"}
 💸 Narxi: ${paymentAmount} ${paymentCurrency == "usd" ? "$" : "so'm"}
 🕔 Yuklash vaqti: ${pickupDate} / ${pickupTime}
-📝 Tavsif: ${description}
+📝 Tavsif: ${description && description !== "undefined" ? description : "-"}
 
 📞 Aloqa: ${phone_number}
 `;
