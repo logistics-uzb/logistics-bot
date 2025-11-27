@@ -9,7 +9,9 @@ const {
 
 const sentOrderToChanel = async (text) => {
   const CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID;
-  const message = await bot.sendMessage(CHANNEL_ID, text);
+  const message = await bot.sendMessage(CHANNEL_ID, text, {
+    parse_mode: "Markdown",
+  });
   return message;
 };
 
@@ -19,6 +21,7 @@ const updateOrderInChannel = async (messageId, newText) => {
   const message = await bot.editMessageText(newText, {
     chat_id: CHANNEL_ID,
     message_id: messageId,
+    parse_mode: "Markdown",
   });
 
   return message;

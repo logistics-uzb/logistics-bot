@@ -18,7 +18,8 @@ bot.on("message", async (msg) => {
   console.log("msg", msg);
   const findUser = await Users.findOne({ chat_id: chatId }).lean();
   console.log("findUser", findUser);
-
+//   const sendMessageChanel =await bot.sendMessage("@Yukchi_2", "Test matni");
+// console.log("sendMessageChanel", sendMessageChanel);
   if (text == "/start" || text == "🔙 Menu") {
     console.log("findUser.action", findUser?.action);
     start(msg);

@@ -7,13 +7,27 @@ module.exports = {
     res.json("admin");
   },
 
+  async GET_ME(req, res, next) {
+    try {
+      const user = await Users.findById(req.id).select("-password -cardNumber"); // parolni chiqarib yubormaymiz
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      res.json({
+        message: "Get me successful",
+        data: user,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async REGISTER(req, res, next) {
     try {
-      const { username, password } = req.body;
+      const { username, password, phone } = req.body;
 
-      if (!username || !password) {
+      if (!username || !password || !phone) {
         return res.status(400).json({
-          message: "username and password are required",
+          message: "username and password and phone are required",
           status: 400,
         });
       }
@@ -30,7 +44,8 @@ module.exports = {
       // create new user
       const user = await Users.create({
         username,
-        password, // ⚠️ hash qilinmagan — xohlasangiz hash qilib beraman
+        password,
+        phone,
       });
 
       return res.status(201).json({

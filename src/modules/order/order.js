@@ -37,7 +37,12 @@ module.exports = {
     try {
       const { id } = req.params;
       const findOrder = await order.findOne({ status: "1", _id: id });
-
+      if (!findOrder) {
+        return res.status(404).json({
+          message: "Order not found",
+          status: 404,
+        });
+      }
       res.status(200).json({
         message: "Orders fetched successfully",
         status: 200,
@@ -52,50 +57,98 @@ module.exports = {
   async CREATE(req, res, next) {
     try {
       const {
+        countryFrom,
+        countryTo,
+        regionFrom,
+        regionTo,
         description,
-        from,
         paymentAmount,
         paymentCurrency,
+        capacity,
         paymentType,
         phone_number,
         pickupDate,
-        pickupTime,
         title,
-        to,
         vehicleBodyType,
         vehicleType,
         weight,
       } = req.body;
 
+      const countryFlags = {
+        uzbekistan: "🇺🇿",
+        kazakhstan: "🇰🇿",
+        china: "🇨🇳",
+        turkey: "🇹🇷",
+        kyrgyzstan: "🇰🇬",
+        tajikistan: "🇹🇯",
+        turkmenistan: "🇹🇲",
+        pakistan: "🇵🇰",
+        iran: "🇮🇷",
+        afghanistan: "🇦🇫",
+        georgia: "🇬🇪",
+      };
+
+      const flagFrom = countryFlags[countryFrom] || "";
+      const flagTo = countryFlags[countryTo] || "";
+
       const findUser = await Users.findById(req.id);
+      const paymentText =
+        paymentType === "cash"
+          ? "нақд"
+          : paymentType === "online"
+          ? "карта"
+          : paymentType === "combo"
+          ? "комбо"
+          : "-";
+
+      const formattedAmount = Number(paymentAmount)
+        .toLocaleString("ru-RU")
+        .replace(/,/g, " ");
+      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+      const formatDate = (dateStr) => {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString("uz-UZ"); // 27.11.2025 formatda qaytaradi
+      };
+      const loadTimeText =
+        pickupDate === today
+          ? `${formatDate(pickupDate)} / Тайёр`
+          : `${formatDate(pickupDate)} `;
 
       const message = `
-🇺🇿 ${from} => ${to} 🇺🇿
-📦 Yuk: ${title}
-⚖️ Og‘irligi: ${weight} tonna
-🚛 Avto turi: ${vehicleType}
-🚋 Pritsep turi: ${vehicleBodyType}
-💰 To‘lov turi: ${paymentType == "cash" ? "naqd" : "karta"}
-💸 Narxi: ${paymentAmount} ${paymentCurrency == "usd" ? "$" : "so'm"}
-🕔 Yuklash vaqti: ${pickupDate} / ${pickupTime}
-📝 Tavsif: ${description && description !== "undefined" ? description : "-"}
+${flagFrom} *${regionFrom} → ${regionTo}* ${flagTo}
 
-📞 Aloqa: ${phone_number}
+📦 Юк: ${title}
+⚖️ Оғирлиги: ${weight} тонна
+📐 Ҳажми: ${capacity && capacity !== "undefined" ? capacity : "-"} м³
+🚛 Авто: ${vehicleType}
+🚋 Прицеп: ${
+        vehicleBodyType && vehicleBodyType !== "undefined"
+          ? vehicleBodyType
+          : "-"
+      }
+💰 Тўлов тури: ${paymentText}
+💸 Нархи: ${formattedAmount} ${paymentCurrency == "usd" ? "$" : "сўм"}
+🕔 Юклаш вақти: ${loadTimeText}
+📝 Тавсиф: ${description && description !== "undefined" ? description : "-"}
+
+📞 Алоқа: ${phone_number}
 `;
       console.log(message);
       const sentMessage = await sentOrderToChanel(message);
 
-      const createOrder = order.create({
+      const createOrder = await order.create({
         description,
-        from,
+        countryFrom,
+        countryTo,
+        regionFrom,
+        regionTo,
+        capacity,
         paymentAmount,
         paymentCurrency,
         paymentType,
         phone_number,
         pickupDate,
-        pickupTime,
         title,
-        to,
         vehicleBodyType,
         vehicleType,
         weight,
@@ -119,34 +172,82 @@ module.exports = {
   async UPDATE(req, res, next) {
     try {
       const {
+        countryFrom,
+        countryTo,
+        regionFrom,
+        regionTo,
         description,
-        from,
         paymentAmount,
         paymentCurrency,
+        capacity,
         paymentType,
         phone_number,
         pickupDate,
-        pickupTime,
         title,
-        to,
         vehicleBodyType,
         vehicleType,
         weight,
       } = req.body;
       const { id } = req.params;
 
-      const message = `
-🇺🇿 ${from} => ${to} 🇺🇿
-📦 Yuk: ${title}
-⚖️ Og‘irligi: ${weight} tonna
-🚛 Avto turi: ${vehicleType}
-🚋 Pritsep turi: ${vehicleBodyType}
-💰 To‘lov turi: ${paymentType == "cash" ? "naqd" : "karta"}
-💸 Narxi: ${paymentAmount} ${paymentCurrency == "usd" ? "$" : "so'm"}
-🕔 Yuklash vaqti: ${pickupDate} / ${pickupTime}
-📝 Tavsif: ${description && description !== "undefined" ? description : "-"}
+      const countryFlags = {
+        uzbekistan: "🇺🇿",
+        kazakhstan: "🇰🇿",
+        china: "🇨🇳",
+        turkey: "🇹🇷",
+        kyrgyzstan: "🇰🇬",
+        tajikistan: "🇹🇯",
+        turkmenistan: "🇹🇲",
+        pakistan: "🇵🇰",
+        iran: "🇮🇷",
+        afghanistan: "🇦🇫",
+        georgia: "🇬🇪",
+      };
 
-📞 Aloqa: ${phone_number}
+      const flagFrom = countryFlags[countryFrom] || "";
+      const flagTo = countryFlags[countryTo] || "";
+
+      const findUser = await Users.findById(req.id);
+      const paymentText =
+        paymentType === "cash"
+          ? "нақд"
+          : paymentType === "online"
+          ? "карта"
+          : paymentType === "combo"
+          ? "комбо"
+          : "-";
+
+      const formattedAmount = Number(paymentAmount)
+        .toLocaleString("ru-RU")
+        .replace(/,/g, " ");
+      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+      const formatDate = (dateStr) => {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString("uz-UZ"); // 27.11.2025 formatda qaytaradi
+      };
+      const loadTimeText =
+        pickupDate === today
+          ? `${formatDate(pickupDate)} / Тайёр`
+          : `${formatDate(pickupDate)} `;
+
+      const message = `
+${flagFrom} *${regionFrom} → ${regionTo}* ${flagTo}
+
+📦 Юк: ${title}
+⚖️ Оғирлиги: ${weight} тонна
+📐 Ҳажми: ${capacity && capacity !== "undefined" ? capacity : "-"} м³
+🚛 Авто: ${vehicleType}
+🚋 Прицеп: ${
+        vehicleBodyType && vehicleBodyType !== "undefined"
+          ? vehicleBodyType
+          : "-"
+      }
+💰 Тўлов тури: ${paymentText}
+💸 Нархи: ${formattedAmount} ${paymentCurrency == "usd" ? "$" : "сўм"}
+🕔 Юклаш вақти: ${loadTimeText}
+📝 Тавсиф: ${description && description !== "undefined" ? description : "-"}
+
+📞 Алоқа: ${phone_number}
 `;
       const findOrder = await order.findById(id);
       console.log(message, "updated message");
@@ -160,15 +261,17 @@ module.exports = {
         id,
         {
           description,
-          from,
+          countryFrom,
+          countryTo,
+          regionFrom,
+          regionTo,
+          capacity,
           paymentAmount,
           paymentCurrency,
           paymentType,
           phone_number,
           pickupDate,
-          pickupTime,
           title,
-          to,
           vehicleBodyType,
           vehicleType,
           weight,
