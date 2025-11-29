@@ -19,7 +19,7 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no server@84.247.184.118 << 'EOF'
+          ssh -o StrictHostKeyChecking=no root@84.247.184.118 << 'EOF'
             cd /home/Projects/prod/logist/logistics-bot/
             git pull origin main
             docker compose down
