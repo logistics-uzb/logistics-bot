@@ -7,6 +7,7 @@ const {
   sentOrderToChanel,
 } = require("../../bot/helper/sent-application");
 const order = require("../../model/order");
+const { getRegionLabel, formatDate } = require("../../utils/format");
 
 module.exports = {
   async GET(req, res, next) {
@@ -88,6 +89,9 @@ module.exports = {
         georgia: "🇬🇪",
       };
 
+      const finalRegionFrom = getRegionLabel(countryFrom, regionFrom);
+      const finalRegionTo = getRegionLabel(countryTo, regionTo);
+
       const flagFrom = countryFlags[countryFrom] || "";
       const flagTo = countryFlags[countryTo] || "";
 
@@ -105,15 +109,12 @@ module.exports = {
         .toLocaleString("ru-RU")
         .replace(/,/g, " ");
       const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-      const formatDate = (dateStr) => {
-        const d = new Date(dateStr);
-        return d.toLocaleDateString("uz-UZ"); // 27.11.2025 formatda qaytaradi
-      };
+
       const loadTimeText =
         pickupDate === today ? `Тайёр` : `${formatDate(pickupDate)} `;
 
       const message = `
-${flagFrom} *${regionFrom} → ${regionTo}* ${flagTo}
+${flagFrom} *${finalRegionFrom} → ${finalRegionTo}* ${flagTo}
 
 📦 Юк: ${title}
 ⚖️ Оғирлиги: ${weight} тонна
@@ -219,10 +220,7 @@ ${flagFrom} *${regionFrom} → ${regionTo}* ${flagTo}
         .toLocaleString("ru-RU")
         .replace(/,/g, " ");
       const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-      const formatDate = (dateStr) => {
-        const d = new Date(dateStr);
-        return d.toLocaleDateString("uz-UZ"); // 27.11.2025 formatda qaytaradi
-      };
+
       const loadTimeText =
         pickupDate === today ? `Тайёр` : `${formatDate(pickupDate)} `;
 
