@@ -55,8 +55,8 @@ module.exports = {
         data: {
           id: user._id,
           username: user.username,
+          access_token: sign({ id: user._id }),
         },
-        access_token: sign({ id: user._id }),
       });
     } catch (error) {
       next(error);
@@ -71,12 +71,17 @@ module.exports = {
         username,
         password,
       });
-      console.log(findUser);
+
       if (findUser) {
         return res.status(200).json({
           message: "User found",
           status: 200,
-          access_token: sign({ id: findUser.id }),
+          data: {
+            access_token: sign({ id: findUser.id }),
+            username: findUser.username,
+            phone_number: findUser.phone_number,
+            full_name: findUser.full_name,
+          },
         });
       }
 
