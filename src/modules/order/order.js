@@ -108,10 +108,12 @@ module.exports = {
           ? "комбо"
           : "-";
 
-      const formattedAmount = Number(paymentAmount)
-        .toLocaleString("ru-RU")
-        .replace(/,/g, " ");
-      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+      const formattedAmount =
+        paymentAmount && paymentAmount !== "undefined"
+          ? Number(paymentAmount).toLocaleString("ru-RU").replace(/,/g, " ")
+          : "";
+
+      const today = new Date().toISOString().split("T")[0];
 
       const loadTimeText =
         pickupDate === today
@@ -126,6 +128,15 @@ module.exports = {
           ? `\n🚋 Прицеп: ${vehicleBodyType}`
           : "";
 
+      const paymentTextLine =
+        paymentText != "-" ? `\n💰 Тўлов тури: ${paymentText}` : "";
+
+      const paymentAmountLine = formattedAmount
+        ? `\n💸 Нархи: ${formattedAmount} ${
+            paymentCurrency === "usd" ? "$" : "сўм"
+          }`
+        : "";
+
       const descriptionText =
         description && description !== "undefined"
           ? `\n📝 Тавсиф: ${description}`
@@ -137,9 +148,7 @@ ${flagFrom} *${regionFrom} → ${regionTo}* ${flagTo}
 ⚖️ Оғирлиги: ${weight} ${
         cargoUnit == "tons" ? "тонна" : "поддон"
       } ${capacityText}
-🚛 Авто: ${vehicleType}${vehicleBodyTypeText}
-💰 Тўлов тури: ${paymentText}
-💸 Нархи: ${formattedAmount} ${paymentCurrency == "usd" ? "$" : "сўм"}
+🚛 Авто: ${vehicleType}${vehicleBodyTypeText}${paymentTextLine}${paymentAmountLine}
 🕔 Юклаш вақти: ${loadTimeText}${descriptionText}
 
 📞 Алоқа: ${phone_number}
